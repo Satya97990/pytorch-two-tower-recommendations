@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pinging Streamlit App
-        run: curl -sL "https://pytorch-two-tower-recommendations-29tv9ggspgtbeafzb5bwqz.streamlit.app/" > /dev/null
+        run: curl -sL "https://pytorch-two-tower-recommendations-29tv9ggspgtbeafzb5bwqz.streamlit.app/" > /dev/null || true
