@@ -2,12 +2,40 @@ name: Wake Streamlit App
 
 on:
   schedule:
-    - cron: "0 */4 * * *" # Runs every 4 hours automatically
-  workflow_dispatch: # Allows you to manually trigger it
+    - cron: "0 */2 * * *" # Increased frequency to every 2 hours
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Pinging Streamlit App
-        run: curl -sL "https://pytorch-two-tower-recommendations-29tv9ggspgtbeafzb5bwqz.streamlit.app/" > /dev/null || true
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install Puppeteer
+        run: npm install puppeteer
+        
+      - name: Simulate Real User Visit
+        run: |
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+            const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+            const page = await browser.newPage();
+            console.log('Navigating to Streamlit app...');
+            
+            // Load the page and wait for network activity to settle
+            await page.goto('https://pytorch-two-tower-recommendations-29tv9ggspgtbeafzb5bwqz.streamlit.app/', { 
+              waitUntil: 'networkidle2', 
+              timeout: 60000 
+            });
+            
+            console.log('App loaded. Waiting 15 seconds to ensure WebSocket registers activity...');
+            await new Promise(r => setTimeout(r, 15000));
+            
+            await browser.close();
+            console.log('Success.');
+          })();
+          "
